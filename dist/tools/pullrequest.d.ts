@@ -104,6 +104,14 @@ export declare function registerPullRequestTools(client: BitbucketClient): {
                     };
                     description: string;
                 };
+                fromProjectKey: {
+                    type: string;
+                    description: string;
+                };
+                fromRepoSlug: {
+                    type: string;
+                    description: string;
+                };
             };
             required: string[];
         };
@@ -115,6 +123,8 @@ export declare function registerPullRequestTools(client: BitbucketClient): {
             toBranch: string;
             description?: string;
             reviewers?: string[];
+            fromProjectKey?: string;
+            fromRepoSlug?: string;
         }) => Promise<{
             content: {
                 type: "text";

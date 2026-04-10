@@ -108,17 +108,17 @@ export function registerPullRequestTools(client) {
             },
         },
         create_pull_request: {
-            description: 'Create a new pull request',
+            description: 'Create a new pull request. Supports cross-repository (fork) PRs by specifying fromProjectKey and fromRepoSlug.',
             inputSchema: {
                 type: 'object',
                 properties: {
                     projectKey: {
                         type: 'string',
-                        description: 'Project key (e.g., "PROJ")',
+                        description: 'Target project key (e.g., "PROJ")',
                     },
                     repoSlug: {
                         type: 'string',
-                        description: 'Repository slug (e.g., "my-repo")',
+                        description: 'Target repository slug (e.g., "my-repo")',
                     },
                     title: {
                         type: 'string',
@@ -141,11 +141,19 @@ export function registerPullRequestTools(client) {
                         items: { type: 'string' },
                         description: 'List of reviewer usernames (optional)',
                     },
+                    fromProjectKey: {
+                        type: 'string',
+                        description: 'Source project key for cross-repo PR (optional, e.g., "FORK_PROJ")',
+                    },
+                    fromRepoSlug: {
+                        type: 'string',
+                        description: 'Source repository slug for cross-repo PR (optional, e.g., "my-fork")',
+                    },
                 },
                 required: ['projectKey', 'repoSlug', 'title', 'fromBranch', 'toBranch'],
             },
             handler: async (args) => {
-                const pr = await client.createPullRequest(args.projectKey, args.repoSlug, args.title, args.fromBranch, args.toBranch, args.description, args.reviewers);
+                const pr = await client.createPullRequest(args.projectKey, args.repoSlug, args.title, args.fromBranch, args.toBranch, args.description, args.reviewers, args.fromProjectKey, args.fromRepoSlug);
                 return {
                     content: [
                         {

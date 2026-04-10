@@ -203,17 +203,29 @@ export class BitbucketClient {
     fromBranch: string,
     toBranch: string,
     description?: string,
-    reviewers?: string[]
+    reviewers?: string[],
+    fromProjectKey?: string,
+    fromRepoSlug?: string
   ): Promise<BitbucketPullRequest> {
     try {
+      const fromRef: { id: string; repository?: { slug: string; project: { key: string } } } = {
+        id: `refs/heads/${fromBranch}`,
+      };
+
+      // If source repo info is provided, attach repository to fromRef for cross-repo PR
+      if (fromProjectKey && fromRepoSlug) {
+        fromRef.repository = {
+          slug: fromRepoSlug,
+          project: { key: fromProjectKey },
+        };
+      }
+
       const response = await this.client.post(
         `/projects/${projectKey}/repos/${repoSlug}/pull-requests`,
         {
           title,
           description,
-          fromRef: {
-            id: `refs/heads/${fromBranch}`,
-          },
+          fromRef,
           toRef: {
             id: `refs/heads/${toBranch}`,
           },

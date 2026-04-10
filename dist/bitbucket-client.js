@@ -128,14 +128,22 @@ export class BitbucketClient {
             this.handleError(error);
         }
     }
-    async createPullRequest(projectKey, repoSlug, title, fromBranch, toBranch, description, reviewers) {
+    async createPullRequest(projectKey, repoSlug, title, fromBranch, toBranch, description, reviewers, fromProjectKey, fromRepoSlug) {
         try {
+            const fromRef = {
+                id: `refs/heads/${fromBranch}`,
+            };
+            // If source repo info is provided, attach repository to fromRef for cross-repo PR
+            if (fromProjectKey && fromRepoSlug) {
+                fromRef.repository = {
+                    slug: fromRepoSlug,
+                    project: { key: fromProjectKey },
+                };
+            }
             const response = await this.client.post(`/projects/${projectKey}/repos/${repoSlug}/pull-requests`, {
                 title,
                 description,
-                fromRef: {
-                    id: `refs/heads/${fromBranch}`,
-                },
+                fromRef,
                 toRef: {
                     id: `refs/heads/${toBranch}`,
                 },

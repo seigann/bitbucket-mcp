@@ -130,17 +130,17 @@ export function registerPullRequestTools(client: BitbucketClient) {
     },
 
     create_pull_request: {
-      description: 'Create a new pull request',
+      description: 'Create a new pull request. Supports cross-repository (fork) PRs by specifying fromProjectKey and fromRepoSlug.',
       inputSchema: {
         type: 'object' as const,
         properties: {
           projectKey: {
             type: 'string',
-            description: 'Project key (e.g., "PROJ")',
+            description: 'Target project key (e.g., "PROJ")',
           },
           repoSlug: {
             type: 'string',
-            description: 'Repository slug (e.g., "my-repo")',
+            description: 'Target repository slug (e.g., "my-repo")',
           },
           title: {
             type: 'string',
@@ -163,6 +163,14 @@ export function registerPullRequestTools(client: BitbucketClient) {
             items: { type: 'string' },
             description: 'List of reviewer usernames (optional)',
           },
+          fromProjectKey: {
+            type: 'string',
+            description: 'Source project key for cross-repo PR (optional, e.g., "FORK_PROJ")',
+          },
+          fromRepoSlug: {
+            type: 'string',
+            description: 'Source repository slug for cross-repo PR (optional, e.g., "my-fork")',
+          },
         },
         required: ['projectKey', 'repoSlug', 'title', 'fromBranch', 'toBranch'],
       },
@@ -174,6 +182,8 @@ export function registerPullRequestTools(client: BitbucketClient) {
         toBranch: string;
         description?: string;
         reviewers?: string[];
+        fromProjectKey?: string;
+        fromRepoSlug?: string;
       }) => {
         const pr = await client.createPullRequest(
           args.projectKey,
@@ -182,7 +192,9 @@ export function registerPullRequestTools(client: BitbucketClient) {
           args.fromBranch,
           args.toBranch,
           args.description,
-          args.reviewers
+          args.reviewers,
+          args.fromProjectKey,
+          args.fromRepoSlug
         );
         return {
           content: [
